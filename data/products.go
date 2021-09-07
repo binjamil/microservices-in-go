@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Product defines the structure for our API's DTO
+// Product defines the structure for our entity
 type Product struct {
 	ID          int     `json:"id"`
 	Name        string  `json:"name"`
@@ -18,6 +18,12 @@ type Product struct {
 	DeletedOn   string  `json:"-"`
 }
 
+func (p *Product) FromJSON(r io.Reader) error {
+	e := json.NewDecoder(r)
+	return e.Decode(p)
+}
+
+// Products is a list of Product
 type Products []*Product
 
 func (p *Products) ToJSON(w io.Writer) error {
@@ -27,6 +33,16 @@ func (p *Products) ToJSON(w io.Writer) error {
 
 func GetProducts() Products {
 	return productList
+}
+
+func AddProduct(p *Product) {
+	p.ID = getNextID()
+	productList = append(productList, p)
+}
+
+func getNextID() int {
+	last := productList[len(productList)-1]
+	return last.ID + 1
 }
 
 // Sample data to abstract DB for now
